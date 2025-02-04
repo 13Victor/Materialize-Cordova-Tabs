@@ -3,55 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- Compiled and minified CSS -->
+    <title>Tabs materialize con API</title>
+
+    <!-- cosas de materialize -->
+    <link rel="stylesheet" href="css/materialize.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="css/materialize.css" rel="stylesheet" />
     <link href="css/index.css" rel="stylesheet" media="screen,projection" />
 </head>
 <body>
-
-    <!-- Side Nav -->
     <ul id="slide-out" class="sidenav">
-        <li>
-            <div class="user-view">
-                <div class="background">
-                    <img src="img/office.jpg">
-                </div>
-                <a href="#user"><img class="circle" src="img/yuna.jpg"></a>
-                <a href="#name"><span class="white-text name">John Doe</span></a>
-                <a href="#email"><span class="white-text email">jdoe@example.com</span></a>
+        <li><div class="user-view">
+            <div class="background">
+                <img src="img/gragas.png">
             </div>
-        </li>
+            <a href="#user"><img class="circle" src="img/icono.png"></a>
+            <a href="#name"><span class="white-text name">Víctor Valero</span></a>
+            <a href="#email"><span class="white-text email">vvalerolopez@gmail.com</span></a>
+        </div></li>
         <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
         <li><a href="#!">Second Link</a></li>
-        <li>
-            <div class="divider"></div>
-        </li>
+        <li><div class="divider"></div></li>
         <li><a class="subheader">Subheader</a></li>
         <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
     </ul>
+    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
 
-
-    <!-- Tabs Swipes -->
-    <ul id="tabs-swipe-demo" class="tabs" style="display: flex;">
-        <li>
-            <a href="#" data-target="slide-out" class="sidenav-trigger">
-                <i class="material-icons"
-                style="margin: 50% 50%;">menu</i>
-            </a>
-        </li>
-        <li class="tab col s3"><a href="#test-swipe-1">Test 1</a></li>
-        <li class="tab col s3"><a class="active" href="#test-swipe-2">Test 2</a></li>
-        <li class="tab col s3"><a href="#test-swipe-3">Test 3</a></li>
+    <ul id="tabs-swipe-demo" class="tabs">
+        <li class="tab col s3"><a class="active" href="#test-swipe-1">Pestaña 1</a></li>
+        <li class="tab col s3"><a href="#test-swipe-2">Pestaña 2</a></li>
+        <li class="tab col s3"><a href="#test-swipe-3">Pestaña 3</a></li>
     </ul>
-    <div id="test-swipe-1" class="col s12 blue">Test 1</div>
-    <div id="test-swipe-2" class="col s12 red">Test 2</div>
-    <div id="test-swipe-3" class="col s12 green">Test 3</div>
-    
-    <script src="cordova.js"></script>
-    <script src="js/index.js"></script>
-    <script src="js/materialize.js"></script>
 
+    <div id="test-swipe-1" class="col s12 blue">
+        <button id="load-news-btn" class="btn">Cargar Amiibos</button>
+        <div id="news-container" class="row">
+            <!-- Los tres div de noticias se cargarán aquí -->
+        </div>
+    </div>
+
+    <div id="test-swipe-2" class="col s12 red">
+        <img id="amiibo-image" class="responsive-img" />
+        <div class="info">
+            <h4 id="amiibo-title"></h4>
+            <p id="amiibo-details"></p>
+        </div>
+    </div>
+
+    <div id="test-swipe-3" class="col s12 green">
+        <div class="container">
+            <div class="row center-align">
+                <div class="col s12">
+                    <script type="text/javascript" src="cordova.js"></script>
+                    <button id="btnCapture" class="btn waves-effect waves-light">
+                        <i class="material-icons left">camera_alt</i>
+                        SAY CHEEESE!
+                    </button>
+                </div>
+                <div class="col s12">
+                    <img id="userPhoto" style="max-width: 100%; margin-top: 20px; display: none;" alt="Foto capturada">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- cosas de códova -->
+    <script src="cordova.js"></script>
+    <script src="js/materialize.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>
