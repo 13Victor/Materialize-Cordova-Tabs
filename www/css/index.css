@@ -1,26 +1,37 @@
 html, body {
     height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    flex-flow: column;
-}
-
-.tabs-content {
-    height: 100%;
-    overflow-y: scroll !important;
-}
-
-#test-swipe-2{
+    margin: 0;
     display: flex;
     flex-direction: column;
+    overflow: none;
+}
+.tabs-content {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+#pokemon-list .card {
+    margin: 10px;
+}
+#camera-preview {
+    border: 2px solid #000;
 }
 
-#test-swipe-2 img{
-    width: 20%;
-    height: auto;
+#pokemon-details .card {
+    padding: 20px;
+    margin-top: 20px;
 }
 
-#test-swipe-2 .info{
+#pokemon-details .progress {
+    margin-top: 8px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#pokemon-details .collection {
+    margin-top: 15px;
+}
+
+#pokemon-details .collection-item {
+    display: flex;
     flex-direction: column;
 }

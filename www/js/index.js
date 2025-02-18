@@ -1,118 +1,113 @@
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("Página cargada completamente. Inicializando...");
+document.addEventListener('DOMContentLoaded', function () {
+    // Inicializar componentes de Materialize
+    M.Sidenav.init(document.querySelectorAll('.sidenav'));
+    M.Tabs.init(document.querySelectorAll('.tabs'), { swipeable: true });
 
-    // Inicializamos los tabs
-    var options = { "swipeable": true };
-    var el = document.getElementsByClassName('tabs');
-    var instance = M.Tabs.init(el, options);
+    // Cargar la lista de Pokémon
+    fetchPokemon();
 
-    // Inicializamos el sidenav
-    var elems = document.querySelectorAll('.sidenav');
-    var instances = M.Sidenav.init(elems);
+    // Configurar la cámara
+    const cameraButton = document.getElementById('camera-button');
+    const cameraPreview = document.getElementById('camera-preview');
+    const captureButton = document.getElementById('capture-button');
+    const photoCanvas = document.getElementById('photo-canvas');
+    const userAvatar = document.getElementById('user-avatar');
 
-    // Evento para cargar las noticias al hacer clic en el botón
-    document.getElementById('load-news-btn').addEventListener('click', () => {
-        fetch('https://www.amiiboapi.com/api/amiibo/')
-            .then(response => response.json())
-            .then(data => {
-                const allNews = data.amiibo.slice(0, 10); // Limitar a las primeras 10 noticias
-                const selectedNews = getRandomItems(allNews, 3); // Seleccionar 3 noticias aleatorias
-                loadNewsDivs(selectedNews); // Cargar las noticias seleccionadas
-            });
-    });
+    let stream;
 
-    function loadNewsDivs(news) {
-        const newsContainer = document.getElementById('news-container');
-        newsContainer.innerHTML = ''; // Limpiar el contenedor antes de agregar nuevos ítems
-
-        news.forEach(item => {
-            const newsDiv = document.createElement('div');
-            newsDiv.classList.add('col', 's12', 'm4', 'l4', 'card', 'hoverable');
-
-            // Crear un enlace dentro de cada div
-            const linkElement = document.createElement('a');
-            linkElement.href = '#';
-            linkElement.classList.add('card-content');
-            linkElement.innerHTML = `<span class="card-title">${item.name}</span>`;
-
-            // Añadir el enlace al div
-            linkElement.addEventListener('click', function () {
-                loadAmiiboDetails(item); // Cargar detalles del amiibo al hacer clic
-                navigateToTab2(); // Cambiar a la pestaña 2
-            });
-
-            // Crear una imagen dentro del div
-            const imageElement = document.createElement('img');
-            imageElement.src = item.image;
-            imageElement.alt = item.name;
-            imageElement.classList.add('responsive-img'); // Clase de Materialize para imágenes responsivas
-            newsDiv.appendChild(imageElement);
-
-            // Añadir el enlace (con la tarjeta) al contenedor
-            newsDiv.appendChild(linkElement);
-            newsContainer.appendChild(newsDiv);
-        });
-    }
-
-    function loadAmiiboDetails(item) {
-        // Cargar los detalles del amiibo en la pestaña 2
-        document.getElementById('amiibo-title').textContent = item.name;
-        document.getElementById('amiibo-image').src = item.image;
-        document.getElementById('amiibo-details').textContent = `Serie: ${item.amiiboSeries}\nLanzamiento: ${item.release.na} (NA)`;
-    }
-
-    function navigateToTab2() {
-        // Navegar a la pestaña 2 usando el método select de Materialize
-        var elems = document.getElementsByClassName('tabs');
-        var instance = M.Tabs.getInstance(elems[0]);
-        instance.select('test-swipe-2'); // Cambiar a la pestaña 2
-    }
-
-    // Función para seleccionar elementos aleatorios de un array
-    function getRandomItems(arr, num) {
-        const shuffled = arr.slice(0); // Copiar el array original
-        let i = arr.length, temp, index;
-
-        // Mientras haya elementos en el array
-        while (i--) {
-            index = Math.floor(Math.random() * (i + 1)); // Obtener un índice aleatorio
-            temp = shuffled[i]; // Intercambiar el elemento
-            shuffled[i] = shuffled[index];
-            shuffled[index] = temp;
+    cameraButton.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            cameraPreview.srcObject = stream;
+            cameraPreview.style.display = 'block';
+            captureButton.style.display = 'block';
+        } catch (error) {
+            console.error('Error accessing the camera:', error);
         }
-
-        return shuffled.slice(0, num); // Devolver los primeros 'num' elementos del array barajado
-    }
-
-
-    // Manejo de la cámara
-    document.addEventListener('deviceready', function() {
-        console.log('Cordova está listo');
-        
-        document.getElementById("btnCapture").addEventListener("click", function() {
-            navigator.camera.getPicture(onSuccess, onFail, {
-                quality: 100,
-                destinationType: Camera.DestinationType.DATA_URL,
-                encodingType: Camera.EncodingType.JPEG,
-                mediaType: Camera.MediaType.PICTURE,
-                correctOrientation: true,
-                sourceType: Camera.PictureSourceType.CAMERA
-            });
-        });
     });
 
-    function onSuccess(imageData) {
-        // Convertir la imagen a base64
-        const base64Image = imageData;
+    captureButton.addEventListener('click', () => {
+        const context = photoCanvas.getContext('2d');
+        photoCanvas.width = cameraPreview.videoWidth;
+        photoCanvas.height = cameraPreview.videoHeight;
+        context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
 
-        // Actualizar el avatar del menú lateral
-        document.querySelector('.circle').src = base64Image;
+        // Convertir la imagen a una URL y actualizar la foto de perfil
+        const imageUrl = photoCanvas.toDataURL('image/png');
+        userAvatar.src = imageUrl;
 
-        // Guardar en localStorage
-        localStorage.setItem("profilePhoto", base64Image);
-    }
-
-    function onFail(message) {
-        alert('Error: ' + message);
-    }
+        // Detener la cámara
+        stream.getTracks().forEach(track => track.stop());
+        cameraPreview.style.display = 'none';
+        captureButton.style.display = 'none';
+    });
 });
+
+// Función para obtener y mostrar la lista de Pokémon
+async function fetchPokemon() {
+    const pokemonList = document.getElementById('pokemon-list');
+    try {
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=30');
+        const data = await response.json();
+        data.results.forEach(async (pokemon) => {
+            const pokemonData = await fetch(pokemon.url).then(res => res.json());
+            const card = document.createElement('div');
+            // Dentro de fetchPokemon, después de crear la tarjeta:
+            card.addEventListener('click', () => showPokemonDetails(pokemonData));
+            card.className = 'col s4 m3 l3';
+            card.innerHTML = `
+                <div class="card">
+                    <div class="card-image">
+                        <img src="${pokemonData.sprites.other["official-artwork"].front_default}" alt="${pokemonData.name}">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title">${pokemonData.name}</span>
+                    </div>
+                </div>
+            `;
+            pokemonList.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error fetching Pokémon:', error);
+    }
+}
+
+function showPokemonDetails(pokemon) {
+    // Cambiar a la segunda pestaña
+    const tabsInstance = M.Tabs.getInstance(document.querySelector('.tabs'));
+    tabsInstance.select('test-swipe-2');
+
+    // Crear contenido de detalles
+    const detailsContainer = document.getElementById('pokemon-details');
+    detailsContainer.innerHTML = `
+        <div class="card">
+            <div class="card-image center">
+                <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}" style="max-width: 200px;">
+            </div>
+            <div class="card-content">
+                <span class="card-title">${pokemon.name.toUpperCase()}</span>
+                <p>Altura: ${pokemon.height / 10}m</p>
+                <p>Peso: ${pokemon.weight / 10}kg</p>
+                
+                <h5>Abilities</h5>
+                <div class="collection">
+                    ${pokemon.abilities.map(ability => 
+                        `<div class="collection-item">${ability.ability.name}</div>`
+                    ).join('')}
+                </div>
+
+                <h5>Stats</h5>
+                <ul class="collection">
+                    ${pokemon.stats.map(stat => `
+                        <li class="collection-item">
+                            ${stat.stat.name}: ${stat.base_stat}
+                            <div class="progress">
+                                <div class="determinate" style="width: ${(stat.base_stat / 255) * 100}%"></div>
+                            </div>
+                        </li>`
+                    ).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+}
